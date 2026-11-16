@@ -1,0 +1,145 @@
+from django.shortcuts import render,get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+# Create your views here.
+from transactions.models import Expense
+from transactions.serializers import ExpenseSerializer
+
+from rest_framework import permissions,authentication
+class  ExpenseListCreateView(APIView):
+
+    authentication_classes=[authentication.BasicAuthentication]
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self,request):
+
+        auth_user =request.user
+
+
+        qs = Expense.objects.filter(owner=auth_user)
+
+        serializers_instance = ExpenseSerializer(qs,many=True)
+
+        return Response(serializers_instance.data)
+
+    def post(self,request):
+
+        form_data=request.data
+
+        auth_user = request.user
+
+        serializer_instance = ExpenseSerializer(data=form_data)
+
+        if serializer_instance.is_valid():
+
+            serializer_instance.save(owner=auth_user)
+
+            return Response(serializer_instance.data)
+
+        else:
+
+            return Response(serializer_instance.errors)
+        
+from transactions.permissions import IsOwner
+
+class ExpenseRetrieveUpdateDeleteView(APIView):
+    
+
+    authentication_classes= [authentication.BasicAuthentication]
+    #permissions_classes= [permissions.IsAuthenticated]
+
+    permission_classes=[IsOwner]
+
+
+    def get(self,request,pk=None):
+
+
+        #qs= Expense.objects.get(id=pk)
+
+        qs = get_object_or_404(Expense,id=pk)
+
+        self.check_object_permissions(request,qs)
+        
+        
+        
+
+        serializers_instance=ExpenseSerializer(qs)
+
+        return Response(serializers_instance.data)
+
+
+    def put(self,request,pk=None):
+
+
+        #instance = Expense.objects.get(id=pk)
+
+        instance = get_object_or_404(Expense,id=pk)
+
+        self.check_object_permissions(request,instance)
+        
+    
+        form_data = request.data
+
+        serrializer_instance= ExpenseSerializer(data=form_data,instance=instance)
+
+        if serrializer_instance.is_valid():
+
+            serrializer_instance.save()
+
+            return Response(serrializer_instance.data)
+
+        else:
+
+            return Response(serrializer_instance.errors)
+
+    
+
+    def delete(self,request,pk=None):
+
+        instance = get_object_or_404(Expense,id=pk)
+
+        self.check_object_permissions(request,instance)
+
+        instance.delete()
+
+        return Response({"message":"deleted"})
+
+
+
+from datetime import datetime
+from django.db.models import Sum
+
+class ExpenseSummeryView(APIView):
+
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self,request):
+
+        auth_user_expense = Expense.objects.filter(owner=request.user)
+
+        response_data ={
+            "today_total" :0,
+            "monthly_total" :0
+        }
+
+        cur_date = datetime.today().date
+
+        todays_total=auth_user_expense.filter(
+                                               created_at__date = cur_date
+                                               ).values("amount").aggregate(Sum("amount")).get("total")
+
+        response_data["today_total"]=todays_total.get("total")
+
+        return Response(response_data)
+
+
+        
+
+
+
+    
+
+    
