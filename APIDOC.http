@@ -11,31 +11,44 @@ Content-Type: application/json
     "dob":"1995-05-15"
 }
 
+#api call for token 
+###
+post http://127.0.0.1:8000/token/
+Content-Type: application/json
+
+{
+    "username":"django",
+    "password":"password@123"
+}
+
 #=======================expense======
 #api call for listing expense
 ###
 GET http://127.0.0.1:8000/expense/
 Accept: application/json
-Authorization: Basic django@:password@123
+Authorization:Token 5cedc66aa499f86890fff8c51f20b83bf0176af8
+
 
 
 #api call for adding expense
 ###
 Post http://127.0.0.1:8000/expense/
 Content-Type: application/json
-Authorization: Basic django@:password@123
+Authorization: Token 5cedc66aa499f86890fff8c51f20b83bf0176af8
+
 
 {
-    "title":"lunch",
-    "amount":"300",
-    "category":"food"
+    "title":"travel",
+    "amount":"800",
+    "category":"travel"
 }
 
 #api call for retrieve expense
 ###
-GET http://127.0.0.1:8000/expense/1/
+GET http://127.0.0.1:8000/expense/6/
 Accept: application/json
-Authorization: Basic react:password@123
+Authorization: token 5cedc66aa499f86890fff8c51f20b83bf0176af8
+
 
 #api call for update expense
 ###
@@ -61,3 +74,11 @@ Authorization: Basic react:password@123
 delete http://127.0.0.1:8000/expense/2/
 Accept:  application/json
 Authorization: Basic react:password@123
+
+#api call for expense summery
+###
+GET http://127.0.0.1:8000/expense/summery/
+Accept: application/json
+Authorization: token 5cedc66aa499f86890fff8c51f20b83bf0176af8
+
+

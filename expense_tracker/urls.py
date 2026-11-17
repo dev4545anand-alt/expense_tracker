@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path
 
 from accounts.views import SignUpView
-from transactions.views import ExpenseListCreateView,ExpenseRetrieveUpdateDeleteView
+from transactions.views import ExpenseListCreateView,ExpenseRetrieveUpdateDeleteView,ExpenseSummeryView
+from rest_framework.authtoken.views import ObtainAuthToken
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,6 +31,9 @@ urlpatterns = [
     #expense
     path("expense/",ExpenseListCreateView.as_view()),
     path("expense/<int:pk>/",ExpenseRetrieveUpdateDeleteView.as_view()),
+    path("expense/summery/",ExpenseSummeryView.as_view()),
+    path("token/",ObtainAuthToken.as_view()),
+
     
     
 ]
